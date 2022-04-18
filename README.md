@@ -12,9 +12,9 @@ def Object{}:
 
 let objectIndex = []
 for index = 1, 10:
-	objectIndex[index] = Object(Math.random(0, 320), Math.random(0, 240))
+	objectIndex[index] = Object(math.random(0, 240), math.random(0, 136))
 
-fn main():
+def main():
 	for index, object in pairs(objectIndex):
 		object:locate()
 `````
@@ -32,7 +32,7 @@ Object = cheese.prototype(function()
 end)
 local objectIndex = {}
 for index = 1, 10 do
-	objectIndex[index] = Object(math.random(0, 320), math.random(0, 240))
+	objectIndex[index] = Object(math.random(0, 240), math.random(0, 136))
 end
 function main()
 	for index, object in pairs(objectIndex) do
