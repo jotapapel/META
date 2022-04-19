@@ -2,21 +2,11 @@ string.mask=function(a,b)return b:gsub("%$",a)end
 
 cheese = {}
 
-cheese.array = function(a)
-	return a:gsub("%b[]", function(b)
-		b = b:match("^%[(.-)%]$")
-		return cheese.array(b):mask("$,"):gsub("(.-):%s+(.-),%s*", function(c, d)
-			if tonumber(c) or c:match("^(<b%x+/>)$") then c = c:mask("[$]") end
-			return c .." = " .. d .. ", "
-		end):match("^(.-),%s*$"):mask("{$}")
-	end)
-end
-
 cheese.patch = function(a, b, c, d)
-	local d, e, f = d or "$", {}, 0
+	local e, f = {}, 0
 	a = a:gsub(b, function(g)
 		local h = string.format("%s%02i", tostring(e):sub(-5), f)
-		e[h], f = g:mask(d), f + 1
+		e[h], f = type(d) == "function" and d(g) or g:mask(d or "$"), f + 1
 		return h:mask(c)
 	end)
 	e.a, e.b = c, f
@@ -38,8 +28,21 @@ cheese.reform = function(a, ...)
 	return a
 end
 
+cheese.array = function(a)
+	return a:gsub("%b[]", function(b)
+		local c, ca = cheese.patch(b:match("^%[(.-)%]$"), "%b[]", "<a$/>", function(d) return cheese.array(d) end)
+		return cheese.reform(string.gsub(c:mask("$,"), "(.-):%s+(.-),%s*", function(e, f)
+			if tonumber(e) or e:match("^<b%x+/>$") then e = e:mask("[$]") end
+			return e .. " = " .. f .. ", "
+		end):match("^(.-),%s*$"), ca):mask("{$}")
+	end)
+end
+
 local patterns = {["if"] = " $ then", ["elseif"] = " $ then", ["else"] = "$", ["while"] = " $ do", ["for"] = " $ do"}
 cheese.parse = function(a, b)
+	-- parse arrays
+	a = cheese.array(a)
+	-- separate head from body
 	local c, d = a:match("^(.-):%s+.-$") or a:match("^(.-):%s*$") or "", a:match("^.-:%s+(.-)$")
 	local e = function() if d then d = cheese.parse(d):mask(" $ end") else d, b.a, b.b[b.a] = "", b.a + 1, "end" end return d end
 	-- control structures
@@ -65,10 +68,12 @@ end
 
 cheese.lines = function(a)
 	local b, c, d = io.open(a, "r"), {}, 0 
+	-- open the file and get it's contents
 	if b then
 		for z in io.lines(a) do table.insert(c, z) end
 		b:close()
 	end
+	-- return the new iterator
 	return function()
 		while d < #c do
 			d = d + 1
@@ -89,24 +94,35 @@ cheese.file = function(a)
 		-- generate closings
 		if e <= d.a then
 			local z = f:match("^elseif%s+.-:.-$") or f:match("^else:.-$")
-			c.a, d.a, d.b[d.a] = c.a - (z and 0 or 1), d.a - 1, ""
-			if not z then table.insert(b, c.b:rep(c.a) .. d.b[d.a]) end
+			c.a, d.a, d.b[d.a], b[#b + 1] = c.a - (z and 0 or 1), d.a - 1, "", z and nil or c.b:rep(c.a - 1) .. d.b[d.a - 1]
 		end
 		-- parse the line
-		local g, h = cheese.array(f:match("^(.-)<d%x+/>$") or f), f:match("(<d%x+/>)$") or ""
+		local g, h = f:match("^(.-)<d%x+/>$") or f, f:match("(<d%x+/>)$") or ""
 		g, d = cheese.parse(g, d)
 		-- repatch the line and generate the right indentation
 		local i = g:gsub("%b{}", "<a/>"):gsub("%b()", "<b/>"):gsub("function<b/>.-end", "<c/>"):gsub("function%s+.-<b/>.-end", "<c/>")
 		if i:match("^until.-$") or i:match("^end.-$") or i:match("^elseif%s+.-%s+then$") or i:match("^else$") or i:match("^%s*}%s*.-$") then c.a = c.a - 1 end
-		if #f > 0 then table.insert(b, c.b:rep(c.a) .. g) end
+		if #f > 0 then b[#b + 1] = c.b:rep(c.a) .. cheese.reform(g .. h, fa, fb, fc, fd) end
 		if i:match("^while%s+.-%s+do$") or i:match("^repeat$") or i:match("^.-%s*function<b/>$") or i:match("^.-%s*function%s+.-$") or i:match("^.-%s+then$") or i:match("^else$") or (i:match("^.-do$") and not i:match("^.-end.-$")) or i:match("^.-%s*{%s*$") then c.a = c.a + 1 end
 	end
 	while d.a > -1 do
-		c.a, d.a, d.b[d.a] = c.a - 1, d.a - 1, ""
-		table.insert(b, c.b:rep(c.a) .. d.b[d.a])
+		c.a, d.a, d.b[d.a], b[#b + 1] = c.a - 1, d.a - 1, "", c.b:rep(c.a - 1) .. d.b[d.a - 1]
 	end
 	return b
 end
 
-local lines = cheese.file("test.gs")
-print(table.concat(lines, "\n"))
+local filename, arg1 = ...
+if filename then
+	local a = table.concat(cheese.file(filename), "\n")
+	if arg1 ~= "--echo" then
+		local ba, bb, bd, be = {}, {}, filename, 1
+		local c, _, d = 0, bd:mask("$/"):gsub("/", "")
+		for z in bd:mask("$/"):gmatch("(.-)/") do ba[#ba + 1], c = (c < d - be) and z or nil, c + 1 end
+		for z in filename:mask("$/"):gmatch("(.-)/") do bb[#bb + 1] = z end
+		ba[#ba + 1] = bb[#bb]:sub(1, -4) .. ".lua"
+		io.open(table.concat(ba, "/"), "w"):write(a):close()
+	end
+	print(a)
+else
+	print("usage: lua ../cheese2lua.lua ../file.chs [--echo]\n--echo    Only prints the result.")
+end
