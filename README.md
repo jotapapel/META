@@ -1,6 +1,13 @@
 # 🧀 Cheese
 Tiny language that compiles to lua.
 
+- [x] Inline comments
+- [x] Basic control structures (if-elseif-else, while, for)
+- [x] Prototype declarations
+- [x] Function declarations, function expressions
+- [x] Inline array declaration
+- [ ] Multiline arrays declarations
+
 #### Example code
 `````
 def Object{}:
