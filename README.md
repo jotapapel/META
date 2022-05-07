@@ -4,16 +4,14 @@ Tiny language that compiles to lua.
 - [x] Inline comments
 - [x] Basic control structures (if-elseif-else, while, for)
 - [x] Prototype declarations
-- [ ] Structure declarations
 - [x] Function declarations, function expressions
 - [x] Inline array declaration
-- [ ] Multiline arrays declarations
 
 #### Example code
 `````
 def Object{}:
 	x, y = 0, 0
-	constructor(x, y):
+	init(x, y):
 		self.x, self.y = x, y
 	locate():
 		print(self.x, self.y)
@@ -31,7 +29,7 @@ def main():
 ````` lua
 Object = cheese.prototype(function()
 	x, y = 0, 0
-	constructor = function(self, x, y)
+	__init = function(self, x, y)
 		self.x, self.y = x, y
 	end
 	locate = function(self)
