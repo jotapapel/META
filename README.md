@@ -1,5 +1,5 @@
 # 🖍️ META
-Tiny language that compiles to lua.
+Tiny language that compiles to Lua.
 
 - [x] Comments
 - [x] Basic control structures (if-elseif-else, while, for, repeat)
@@ -16,6 +16,11 @@ def Object{}:
 		self.x, self.y = x, y
 	locate():
 		print(self.x, self.y)
+
+def Player{Object}:
+	locate():
+		print("Player location is:")
+		super.locate(self)
 
 let objectIndex = []
 for index = 1, 10:
