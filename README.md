@@ -1,4 +1,4 @@
-# 🧀 Cheese
+# META (Minimal Expression Transpile Algorithm)
 Tiny language that compiles to lua.
 
 - [x] Inline comments
@@ -27,9 +27,9 @@ def main():
 
 #### Lua equivalent
 ````` lua
-Object = cheese.prototype(function()
+Object = prototype.extend(nil, function()
 	x, y = 0, 0
-	__init = function(self, x, y)
+	init = function(self, x, y)
 		self.x, self.y = x, y
 	end
 	locate = function(self)
