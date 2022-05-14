@@ -1,4 +1,4 @@
-# META (Minimal Expression Transpile Algorithm)
+# 🖍️ META
 Tiny language that compiles to lua.
 
 - [x] Comments
