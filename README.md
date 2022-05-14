@@ -1,11 +1,12 @@
 # META (Minimal Expression Transpile Algorithm)
 Tiny language that compiles to lua.
 
-- [x] Inline comments
-- [x] Basic control structures (if-elseif-else, while, for)
+- [x] Comments
+- [x] Basic control structures (if-elseif-else, while, for, repeat)
 - [x] Prototype declarations
-- [x] Function declarations, function expressions
+- [x] Function declarations, function expressions, functions as arguments
 - [x] Inline array declaration
+- [ ] Multiline array declaration
 
 #### Example code
 `````
