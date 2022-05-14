@@ -42,6 +42,12 @@ Object = prototype.extend(nil, function()
 		print(self.x, self.y)
 	end
 end)
+Player = prototype.extend(Object, function()
+	locate = function(self)
+		print("Player location is:")
+		super.locate(self)
+	end
+end)
 local objectIndex = {}
 for index = 1, 10 do
 	objectIndex[index] = Object(math.random(0, 240), math.random(0, 136))
