@@ -1,4 +1,4 @@
-# 🖍️ Tile
+# 🔡 Tile
 **Ti**ny scripting **l**anguag**e** that compiles to Lua.
 
 - [x] Comments
@@ -9,6 +9,7 @@
 
 #### Example code
 `````
+/* Simple prototype declaration */
 Object = {}:
 	x, y = 0, 0
 	init = (self, x, y):
@@ -32,6 +33,7 @@ main = ():
 
 #### Lua equivalent
 ````` lua
+-- Simple object declartion
 Object = tile.prototype(function()
 	x, y = 0, 0
 	init = function(self, x, y)
