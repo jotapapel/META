@@ -1,62 +1,35 @@
 return {
-	decorators =  {
-		-- decorators
-	},
-	substitutions = {
-		-- local variables
-		["^let(%s+.-)$"] = "local%1",
-		-- inline functions
-		["%b()"] = function(a)
-			a = string.format("%s,", string.match(a, "^%((.-)%)$")):gsub("(%b()):(.-),", "function%1%2 end,")
-			return string.format("(%s)", a:match("(.-),%s*$"))
-		end,
-		-- inline if-else and ternary operator
-		["^(.-)%s+if%s+(.-)%s+else%s+(.-)$"] = function(a, b, c)
-			if a:match("^(.-)%s+=%s+(.-)$") then
-				local d, e = a:match("^(.-)%s+=%s+(.-)$")
-				return string.format("%s = (%s and %s) or %s", d, b, e, c)
-			end
-			return string.format("if %s then %s else %s end", b, a, c)
-		end,
-		-- negation
-		["!([_%a][_%.%w]*)"] = "not(%1)",
-		-- variable argument number
-		["#..."] = "select(\"#\", ...)",
-		-- shorthand operators
-		["^(.-)%s+([%+%-%*%/%^])=%s+(.-)$"] = function(a, b, c)
-			local d, e, f, g = {}, {}, "", ""
-			for h in string.gmatch(string.format("%s,", a), "(.-),%s*") do
-				table.insert(d, h)
-			end
-			for i in string.gmatch(string.format("%s,", c), "(.-),%s*") do
-				table.insert(e, i)
-			end
-			for j = 1, #d do 
-				f, g = string.format("%s%s, ", f, d[j]), e[j] and string.format("%s%s %s %s, ", g, d[j], b, e[j]) or g
-			end
-			return string.format("%s = %s", f:match("^(.-),%s+$"), g:match("^(.-),%s+$"))
-		end
-	},
-	openings = {
-		-- prototypes
-		["^([_%a][_%.%w]*)%s+=%s+{(.-)}:$"] = function(a, b)
+  openings = {
+		["([_%a][_%.%w]*)%s+=%s+{(.-)}:$"] = function(a, b)
 			b = #b > 0 and string.format("%s, ", b) or ""
 			return string.format("%s = lang.prototype(%sfunction()", a, b)
 		end,
-		-- functions
-		["^(.-%s+)(%(.-%)):$"] = "%1function%2",
-		-- control structures
-		["^if%s+(.-):$"] = "if %1 then",
-		["^elseif%s+(.-):$"] = "elseif %1 then",
-		["^else:$"] = "else",
+		["(.-%s+)(%(.-%)):$"] = "%1function%2",
+    ["^if%s+(.-):$"] = "if %1 then",
+    ["^elseif%s+(.-):$"] = "elseif %1 then",
+    ["^else:$"] = "else",
 		["^for%s+(.-):$"] = "for %1 do",
 		["^while%s+(.-):$"] = "while %1 do",
 		["^until%s+.-:$"] = "repeat",
-		["^do:$"] = "do"
-	},
-	closings = {
-		["^([_%a][_%.%w]*)%s+=%s+{(.-)}:$"] = "<end)>",
-		["^if%s+(.-):$"] = "<end>",
+		["^do:$"] = "do",
+  },
+  closings = {
+    ["([_%a][_%.%w]*)%s+=%s+{(.-)}:$"] = "<end)>",
 		["^until%s+(.-):$"] = "<until> %s"
+  },
+  substitutions = {
+    ["let%s+(.-)$"] = "local %1",
+    ["!([_%a][_%.%w]*)"] = "not(%1)",
+		["%$([_%a][_%.%w]*)"] = "tostring(%1)",
+		["#%.%.%."] = "select(\"#\", ...)",
+		["([_%a][%.%_%w]*)([%+%-].)"] = function(a, b)
+			if string.sub(b, 1, 1) == string.sub(b, -1) then
+				return string.format("%s = %s %s 1", a, a, string.sub(b, 1, 1))
+			end
+		end
+  },
+	specials = {
+		["^(<INLINE_FUNCTION.->)(.-)$"] = "%1 %2 end",
+		["^(.-)%s+if%s+(.-)%s+else%s+(.-)$"] = "%2 and %1 or %3"
 	}
 }
