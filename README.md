@@ -10,7 +10,7 @@
 #### Example code
 `````
 ' Simple prototype declaration
-Object = {}:
+Object = {lang.object}:
 	x, y = 0, 0
 	init = (self, x, y):
 		self.x, self.y = x, y
@@ -40,7 +40,7 @@ lang = (function()
 	return {prototype = prototype, object = object}
 end)()
 -- Simple object declartion
-Object = lang.prototype(function()
+Object = lang.prototype(function(lang.object)
 	x, y = 0, 0
 	init = function(self, x, y)
 		self.x, self.y = x, y
@@ -49,7 +49,7 @@ Object = lang.prototype(function()
 		print(self.x, self.y)
 	end
 end)
-Player = tile.prototype(Object, function()
+Player = lang.prototype(Object, function()
 	locate = function(self)
 		print("Player location is:")
 		super.locate(self)
