@@ -38,13 +38,13 @@ end
 --- @return string # The modified string.
 tile.parenthesis = function(a)
 	local b, c = parser.capture(string.sub(a, 2, -2), "%b()", "<PARENTHESIS%s>", tile.parenthesis)
-	local d = parser.eacha(b, function(e) return parser.parse(e, "specials") end)
+	local d = parser.eacha(b, function(e) return parser.parse(e, "inline") end)
 	return string.format("(%s)", parser.release(d, c))
 end
 
 --- Transform array declarations from '[key: value]' to '{key = value}'.
 --- Also it transforms declarations like '[1: value, "key": value]' to '{[1] = value, ["key"] = value}'
---- It also changes some special keywords in the "specials" part of the lexer.
+--- It also changes some special keywords in the "inline" part of the lexer.
 --- @param a string The string to modify.
 --- @return	string # The modified string.
 tile.brackets = function(a)
@@ -53,7 +53,7 @@ tile.brackets = function(a)
 		local f, g = string.match(e, "^(.-):") or e, string.match(e, ":%s+(.-)$")
 		if g then
 			if string.match(f, [[%b""]]) or tonumber(f) then f = string.format("[%s]", f) end
-			return string.format("%s = %s", f, parser.parse(g, "specials"))
+			return string.format("%s = %s", f, parser.parse(g, "inline"))
 		end
 	end)
 	return string.format("{%s}", parser.release(d, c))
@@ -68,7 +68,7 @@ tile.expressions = function(a, b, c)
 	local d, e = string.match(a, "^(%w+%s+)(.-)$")
 	local f = parser.eacha(e or a, true)
 	local g = parser.eacha(c, function(h, i)
-		h = parser.parse(h, "specials")
+		h = parser.parse(h, "inline")
 		if #b > 0 then h = string.format("%s %s %s", f[i], b, h) end
 		return h
 	end)
@@ -133,8 +133,7 @@ tile.transpile = function(a)
 	return new_lines
 end
 
-local options = {...}
-local name = table.remove(options, 1)
+local name, options = ...
 
 -- transpile a single file
 if string.match(name, "^.-%/[%.%w_]+%.tle$") then

@@ -28,8 +28,11 @@ return {
 			end
 		end
   },
-	specials = {
+	inline = {
 		["^(<INLINE_FUNCTION.->)(.-)$"] = "%1 %2 end",
 		["^(.-)%s+if%s+(.-)%s+else%s+(.-)$"] = "%2 and %1 or %3"
+	},
+	decorators = {
+		["abstract"] = 
 	}
 }
