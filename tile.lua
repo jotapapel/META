@@ -1,5 +1,7 @@
+package.path = package.path .. ";../?.lua"
+
 local parser = require "parser"
-local config = {tab_size = 1, comments = true, indent_char = "\t"}
+local config = {tab_size = 1, show_comments = true, indent_char = "\t"}
 local tile = {}
 
 --- Dump the contents of a file on to a table.
@@ -133,11 +135,11 @@ tile.transpile = function(a)
 	return new_lines
 end
 
-local name, options = ...
+local path, options = ...
+if string.match(name, "%/[%w_]+$") goto folder_transpile end
 
--- transpile a single file
-if string.match(name, "^.-%/[%.%w_]+%.tle$") then
+::folder_transpile::
+package.path = package.path .. string.format(";%s?.lua", path)
+local config_file = require "tleconfig"
 
-elseif string.match(name, "%/[%w_]+$") goto
-	local config_file = tile.readfile("tleconfig.lua")
-end
+
