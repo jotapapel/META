@@ -139,7 +139,25 @@ local path, options = ...
 if string.match(name, "%/[%w_]+$") goto folder_transpile end
 
 ::folder_transpile::
-package.path = package.path .. string.format(";%s?.lua", path)
-local config_file = require "tleconfig"
+package.path = package.path .. string.format("; %s?.lua", path)
+local config_file, final_lines = require "tleconfig", {}
 
+if not config_file then
+	error("Tile config file missing.")
+else
+	local old_config = config
+	config = setmetatable(config_file, {__index = old_config})
+end
 
+if type(config.include) == "table" then
+	for _, file in ipairs(config.include) do
+		local file_lines = tile.transpile(file)
+		table.insert(final_lines, string.format("-- %s", string.match(file, "%/[%w_]+$")))
+		table.insert(final_lines, table.concat(file_lines, "\n"))
+	end
+end
+
+local main_lines = tile.transpile(path .. "index.tle")
+table.insert(final_lines, string.format("-- index.tle\n%s", table.concat(main_lines, "\n")))
+
+print(table.concat(final_lines, "\n"))
