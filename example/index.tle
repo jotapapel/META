@@ -1,0 +1,4 @@
+Object = {}:
+  x, y = 0, 0
+  __init = (self, x, y):
+    self.x, self.y = x, y

@@ -1,5 +1,4 @@
 package.path = package.path .. ";../?.lua"
-
 local parser = require "parser"
 local config = {tab_size = 1, show_comments = true, indent_char = "\t"}
 local tile = {}
@@ -139,20 +138,14 @@ local path, options = ...
 if string.match(name, "%/[%w_]+$") goto folder_transpile end
 
 ::folder_transpile::
-package.path = package.path .. string.format("; %s?.lua", path)
-local config_file, final_lines = require "tleconfig", {}
-
-if not config_file then
-	error("Tile config file missing.")
-else
-	local old_config = config
-	config = setmetatable(config_file, {__index = old_config})
-end
+package.path = package.path .. string.format(";%s/?.lua", path)
+local final_lines, config_file, include_lib = {}, require "tleconfig", false
+if config_file then config = setmetatable(config_file, {__index = config}) end
 
 if type(config.include) == "table" then
-	for _, file in ipairs(config.include) do
-		local file_lines = tile.transpile(file)
-		table.insert(final_lines, string.format("-- %s", string.match(file, "%/[%w_]+$")))
+	for _, filename in ipairs(config.include) do
+		local file_lines, has_lib = tile.transpile(file)
+		table.insert(final_lines, string.format("-- %s", string.match(filename, "%/[%w_]+$")))
 		table.insert(final_lines, table.concat(file_lines, "\n"))
 	end
 end
